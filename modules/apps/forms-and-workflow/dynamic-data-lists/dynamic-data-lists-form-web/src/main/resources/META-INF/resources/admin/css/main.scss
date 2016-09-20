@@ -9,12 +9,29 @@
 @import "portlet-forms";
 @import "portlet-forms-admin";
 
+.cursor-pointer {
+	cursor: pointer;
+}
+
 .ddl-form-builder-buttons .icon-spinner,
 .lfr-ddm-form-pagination-controls .icon-spinner,
 .ddl-form-settings-modal .btn-toolbar-button .icon-spinner {
 	line-height: 21px;
 	margin-left: 10px;
 	position: absolute;
+}
+
+.form-builder-rulles-builder-popover .popover-content {
+	padding: 0;
+
+	.dropdown-menu {
+		border-width: 0;
+		box-shadow: none;
+		display: block;
+		float: none;
+		margin: 0;
+		position: relative;
+	}
 }
 
 .ddl-form-settings-modal,
@@ -156,6 +173,12 @@
 .lfr-ddl-field-settings-yes {
 	padding-left: 21px;
 	padding-right: 21px;
+}
+
+.liferay-ddl-form-rule-builder {
+	.ddl-form-basic-info {
+		display: none;
+	}
 }
 
 .portal-popup,
