@@ -44,6 +44,13 @@ renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-for
 </portlet:actionURL>
 
 <div class="hide portlet-forms" id="<portlet:namespace />formContainer">
+	<aui:nav-bar cssClass="collapse-basic-search" id="toolbar" markupView="lexicon">
+		<aui:nav cssClass="navbar-nav">
+			<aui:nav-item id="showForm" label="Build" selected="<%= true %>" />
+			<aui:nav-item id="showRules" label="Rules" />
+		</aui:nav>
+	</aui:nav-bar>
+
 	<aui:form action="<%= (recordSet == null) ? addRecordSetURL : updateRecordSetURL %>" cssClass="ddl-form-builder-form" method="post" name="editForm">
 		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
 		<aui:input name="recordSetId" type="hidden" value="<%= recordSetId %>" />
@@ -52,7 +59,6 @@ renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-for
 		<aui:input name="serializedSettingsDDMFormValues" type="hidden" value="" />
 
 		<liferay-ui:error exception="<%= DDMFormLayoutValidationException.class %>" message="please-enter-a-valid-form-layout" />
-
 		<liferay-ui:error exception="<%= DDMFormLayoutValidationException.MustNotDuplicateFieldName.class %>">
 
 			<%
@@ -140,11 +146,16 @@ renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-for
 			</div>
 		</aui:fieldset>
 
-		<aui:fieldset cssClass="container-fluid-1280 ddl-form-builder-app">
+		<aui:fieldset cssClass="container-fluid-1280 ddl-form-body-content ddl-form-builder-content">
 			<aui:input name="definition" type="hidden" />
 			<aui:input name="layout" type="hidden" />
+			<aui:input name="rules" type="hidden" />
 
 			<div id="<portlet:namespace />formBuilder"></div>
+		</aui:fieldset>
+
+		<aui:fieldset cssClass="container-fluid-1280 ddl-rules-builder-content hide">
+			<div id="<portlet:namespace />ruleBuilder"></div>
 		</aui:fieldset>
 
 		<div class="container-fluid-1280">
@@ -222,6 +233,7 @@ renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-for
 										{
 											definition: <%= ddlFormAdminDisplayContext.getSerializedDDMForm() %>,
 											description: '<%= HtmlUtil.escapeJS(description) %>',
+
 											editForm: event.form,
 											evaluatorURL: '<%= ddlFormAdminDisplayContext.getDDMFormContextProviderServletURL() %>',
 											fieldTypesDefinitions: <%= ddlFormAdminDisplayContext.getDDMFormFieldTypesDefinitionsMap() %>,
@@ -230,7 +242,8 @@ renderResponse.setTitle((recordSet == null) ? LanguageUtil.get(request, "new-for
 											name: '<%= HtmlUtil.escapeJS(name) %>',
 											namespace: '<portlet:namespace />',
 											publishRecordSetURL: '<%= publishRecordSetURL.toString() %>',
-											recordSetId: <%= recordSetId %>
+											recordSetId: <%= recordSetId %>,
+											rules: <%= ddlFormAdminDisplayContext.getSerializedDDMFormRules() %>
 										}
 									)
 								);
