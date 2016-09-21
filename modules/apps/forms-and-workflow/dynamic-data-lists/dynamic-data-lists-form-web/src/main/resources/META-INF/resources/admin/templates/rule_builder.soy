@@ -1,0 +1,55 @@
+{namespace ddl}
+
+/**
+ * Prints the DDL form rule builder cotainer.
+ *
+ * @param plusIcon
+ */
+{template .rule_builder autoescape="deprecated-contextual"}
+	<div class="form-builder-rule-builder-container">
+		<div class="form-builder-rule-builder-rules-list"></div>
+		<div class="form-builder-rule-builder-add-rule-container">
+			<div class="btn-action-secondary btn-bottom-right form-builder-rule-builder-add-rule-button dropdown">
+				<button class="btn btn-primary form-builder-rule-builder-add-rule-button-icon" type="button">
+					{$plusIcon|noAutoescape}
+				</button>
+			</div>
+		</div>
+	</div>
+{/template}
+
+/**
+ * Prints the DDL form card rule.
+ *
+ * @param rules
+ * @param strings
+ * @param kebab
+ */
+{template .rule_list autoescape="deprecated-contextual"}
+	{foreach $rule in $rules}
+		<div class="card card-horizontal card-rule">
+			<div class="card-row card-row-padded">
+				<div class="card-col-content card-col-gutters">
+					<p>{$rule['logical-operator']}</p>
+				</div>
+				<div class="card-col-field">
+					<div class="dropdown">
+						<a class="dropdown-toggle icon-monospaced" data-toggle="dropdown" href="#1">
+							{$kebab|noAutoescape}
+						</a>
+						<ul class="dropdown-menu dropdown-menu-right">
+							<li class="rule-card-edit" data-card-id="{index($rule)}">
+								<a href="javascript:;">{$strings.edit}</a>
+							</li>
+							<li class="rule-card-delete" data-card-id="{index($rule)}">
+								<a href="javascript:;">{$strings.delete}</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		{ifempty}
+			{$strings.emptyListText}
+	{/foreach}
+{/template}
