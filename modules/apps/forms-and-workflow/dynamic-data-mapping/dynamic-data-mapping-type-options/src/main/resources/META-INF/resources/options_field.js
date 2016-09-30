@@ -49,6 +49,7 @@ AUI.add(
 
 						instance._eventHandlers.push(
 							instance.after('*:valueChanged', A.bind('_afterOptionValueChanged', instance)),
+							instance.after('*:keyChange', A.bind('_afterKeyChange', instance)),
 							sortableList.after('drag:end', A.bind('_afterSortableListDragEnd', instance)),
 							sortableList.after('drag:start', A.bind('_afterSortableListDragStart', instance))
 						);
@@ -280,6 +281,12 @@ AUI.add(
 						}
 					},
 
+					_afterKeyChange: function() {
+						var instance = this;
+						
+						instance.evaluate();
+					},
+
 					_afterSortableListDragStart: function(event) {
 						var instance = this;
 
@@ -394,6 +401,8 @@ AUI.add(
 						option.remove();
 
 						instance.fire('removeOption');
+
+						instance.evaluate();
 					},
 
 					_onOptionValueChange: function(event) {

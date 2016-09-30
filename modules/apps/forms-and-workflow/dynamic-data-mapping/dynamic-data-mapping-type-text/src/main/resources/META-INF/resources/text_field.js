@@ -27,6 +27,11 @@ AUI.add(
 						value: []
 					},
 
+					placeholder: {
+						state: true,
+						value: ''
+					},
+
 					type: {
 						value: 'text'
 					}
@@ -64,26 +69,16 @@ AUI.add(
 
 						var inputNode = instance.getInputNode();
 
-						if (autoComplete) {
-							autoComplete.set('inputNode', inputNode);
+						if (instance.get('visible')) {
+							if (autoComplete) {
+								autoComplete.set('inputNode', inputNode);
+							}
+							else {
+								instance._createAutocomplete();
+								autoComplete = instance._autoComplete;
+							}	
 						}
-						else {
-							autoComplete = new A.AutoComplete(
-								{
-									after: {
-										select: A.bind(instance.evaluate, instance)
-									},
-									inputNode: inputNode,
-									maxResults: 10,
-									render: true,
-									resultFilters: ['charMatch', 'subWordMatch'],
-									resultHighlighter: 'subWordMatch',
-									resultTextLocator: 'label'
-								}
-							);
-
-							instance._autoComplete = autoComplete;
-						}
+						
 
 						return autoComplete;
 					},
@@ -102,7 +97,7 @@ AUI.add(
 						if (options.length) {
 							var autoComplete = instance.getAutoComplete();
 
-							autoComplete.set('source', instance.get('options'));
+							// autoComplete.set('source', instance.get('options'));
 						}
 
 						return instance;
@@ -137,6 +132,29 @@ AUI.add(
 								}
 							);
 						}
+					},
+
+					_createAutocomplete: function() {
+						var instance = this;
+
+						var inputNode = instance.getInputNode();
+
+						autoComplete = new A.AutoComplete(
+								{
+									after: {
+										select: A.bind(instance.evaluate, instance)
+									},
+									inputNode: inputNode,
+									source: instance.get('options'),
+									maxResults: 10,
+									render: true,
+									resultFilters: ['charMatch', 'subWordMatch'],
+									resultHighlighter: 'subWordMatch',
+									resultTextLocator: 'label'
+								}
+							);
+
+						instance._autoComplete = autoComplete;
 					},
 
 					_onFocusInput: function() {

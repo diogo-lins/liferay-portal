@@ -27,6 +27,7 @@ AUI.add(
 					},
 
 					title: {
+						setter: '_setTitle',
 						value: ''
 					},
 
@@ -53,6 +54,7 @@ AUI.add(
 						];
 
 						instance._eventHandlers = eventHandlers;
+						instance._eventOpenedStateHandlers = [];
 					},
 
 					destructor: function() {
@@ -247,6 +249,10 @@ AUI.add(
 						if (content) {
 							instance.get('boundingBox').one('.sidebar-body').setHTML(content);
 						}
+					},
+
+					_setTitle: function(value) {
+						return value || Liferay.Language.get('unlabeled');
 					},
 
 					_showLoading: function() {
