@@ -116,7 +116,7 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 				"Missing parentheses in if-statement",
 				"Missing parentheses in if-statement",
 				"Missing parentheses in if-statement",
-				"Missing parentheses in if-statement",
+				"Redundant parentheses in if-statement",
 				"Redundant parentheses in if-statement",
 				"Redundant parentheses in if-statement"
 			},
@@ -171,8 +171,8 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 				"There should be a line break after '='",
 				"Line should not start with '.'",
 				"There should be a line break before 'throws'",
-				"There should be a line break after '{'",
-				"There should be a line break after '{'",
+				"There should be a line break after '}'",
+				"There should be a line break after '}'",
 				"There should be a line break after '('",
 				"There should be a line break after '('",
 				"'null) {' should be added to previous line",
@@ -305,8 +305,8 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	public void testPackagePath() throws Exception {
 		test(
 			"PackagePath.testjava",
-			"Package path does not match expected package path " +
-				"'com.liferay.source.formatter.dependencies'");
+			"The declared package 'com.liferay.source.formatter.hello.world' " +
+				"does not match the expected package");
 	}
 
 	@Test
