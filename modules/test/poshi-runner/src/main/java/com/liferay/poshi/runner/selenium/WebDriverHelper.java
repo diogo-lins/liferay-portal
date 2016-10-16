@@ -309,6 +309,7 @@ public class WebDriverHelper {
 			Document document = connection.get();
 
 			sb.append(document.text());
+
 			sb.append("\n");
 		}
 
@@ -698,6 +699,18 @@ public class WebDriverHelper {
 		WebElement webElement = getWebElement(webDriver, locator, "1");
 
 		String text = webElement.getText();
+
+		return text.contains(value);
+	}
+
+	public static boolean isPartialTextAceEditor(
+		WebDriver webDriver, String locator, String value) {
+
+		WebElement webElement = getWebElement(webDriver, locator, "1");
+
+		String text = webElement.getText();
+
+		text = text.replace("\n", "");
 
 		return text.contains(value);
 	}

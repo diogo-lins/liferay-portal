@@ -59,8 +59,8 @@ public class ProjectTemplatesArgs {
 		return _template;
 	}
 
-	public File getWorkspaceDir() {
-		return _workspaceDir;
+	public boolean isForce() {
+		return _force;
 	}
 
 	public void setClassName(String className) {
@@ -69,6 +69,10 @@ public class ProjectTemplatesArgs {
 
 	public void setDestinationDir(File destinationDir) {
 		_destinationDir = destinationDir;
+	}
+
+	public void setForce(boolean force) {
+		_force = force;
 	}
 
 	public void setHostBundleSymbolicName(String hostBundleSymbolicName) {
@@ -95,10 +99,6 @@ public class ProjectTemplatesArgs {
 		_template = template;
 	}
 
-	public void setWorkspaceDir(File workspaceDir) {
-		_workspaceDir = workspaceDir;
-	}
-
 	protected boolean isHelp() {
 		return _help;
 	}
@@ -118,6 +118,12 @@ public class ProjectTemplatesArgs {
 		names = "--destination"
 	)
 	private File _destinationDir;
+
+	@Parameter(
+		description = "Forces creation of new project even if target directory contains files.",
+		names = "--force"
+	)
+	private boolean _force;
 
 	@Parameter(
 		description = "Print this message.", help = true,
@@ -165,12 +171,6 @@ public class ProjectTemplatesArgs {
 		description = "The template to use when creating the project.",
 		names = "--template"
 	)
-	private String _template = "mvcportlet";
-
-	@Parameter(
-		description = "The root directory of the Liferay Workspace where the new project is being created.",
-		names = "--workspace"
-	)
-	private File _workspaceDir;
+	private String _template = "mvc-portlet";
 
 }
