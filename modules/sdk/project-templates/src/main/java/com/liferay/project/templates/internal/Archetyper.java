@@ -19,6 +19,7 @@ import com.liferay.project.templates.ProjectTemplatesArgs;
 import com.liferay.project.templates.internal.util.FileUtil;
 import com.liferay.project.templates.internal.util.ReflectionUtil;
 import com.liferay.project.templates.internal.util.Validator;
+import com.liferay.project.templates.internal.util.WorkspaceUtil;
 
 import java.io.File;
 
@@ -31,6 +32,7 @@ import java.net.URLClassLoader;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -76,20 +78,23 @@ public class Archetyper {
 		String hostBundleVersion = projectTemplatesArgs.getHostBundleVersion();
 		String packageName = projectTemplatesArgs.getPackageName();
 
+		File workspaceDir = WorkspaceUtil.getWorkspaceDir(destinationDir);
+
 		String projectType = "standalone";
 
-		if (projectTemplatesArgs.getWorkspaceDir() != null) {
-			projectType = "workspace";
+		if (workspaceDir != null) {
+			projectType = WorkspaceUtil.WORKSPACE;
 		}
 
 		String service = projectTemplatesArgs.getService();
-		String templateName = projectTemplatesArgs.getTemplate();
+		String template = projectTemplatesArgs.getTemplate();
 
 		ArchetypeGenerationRequest archetypeGenerationRequest =
 			new ArchetypeGenerationRequest();
 
 		archetypeGenerationRequest.setArchetypeArtifactId(
-			ProjectTemplates.TEMPLATE_BUNDLE_PREFIX + templateName);
+			ProjectTemplates.TEMPLATE_BUNDLE_PREFIX +
+				template.replace('-', '.'));
 		archetypeGenerationRequest.setArchetypeGroupId("com.liferay");
 
 		// archetypeVersion is ignored
@@ -104,6 +109,30 @@ public class Archetyper {
 
 		Properties properties = new Properties();
 
+		if (template.equals("service-builder")) {
+			String apiPath = ":" + artifactId + "-api";
+
+			if (workspaceDir != null) {
+				Path destinationDirPath = destinationDir.toPath();
+				Path workspaceDirPath = workspaceDir.toPath();
+
+				destinationDirPath = destinationDirPath.toAbsolutePath();
+				workspaceDirPath = workspaceDirPath.toAbsolutePath();
+
+				Path relativePath = workspaceDirPath.relativize(
+					destinationDirPath);
+
+				String path = relativePath.toString();
+
+				path = path.replace(File.separatorChar, ':');
+
+				apiPath = ":" + path + ":" + artifactId + apiPath;
+			}
+
+			_setProperty(properties, "apiPath", apiPath);
+		}
+
+		_setProperty(properties, "buildType", "gradle");
 		_setProperty(properties, "className", className);
 		_setProperty(
 			properties, "hostBundleSymbolicName", hostBundleSymbolicName);
@@ -111,6 +140,7 @@ public class Archetyper {
 		_setProperty(properties, "package", packageName);
 		_setProperty(properties, "projectType", projectType);
 		_setProperty(properties, "serviceClass", service);
+		_setProperty(properties, "serviceWrapperClass", service);
 
 		archetypeGenerationRequest.setProperties(properties);
 
@@ -285,8 +315,8 @@ public class Archetyper {
 								"temp-archetype", null);
 
 							Files.copy(
-								jarFile.getInputStream(jarEntry),
-								archetypePath);
+								jarFile.getInputStream(jarEntry), archetypePath,
+								StandardCopyOption.REPLACE_EXISTING);
 
 							archetypeFile = archetypePath.toFile();
 

@@ -77,7 +77,7 @@ public class SpriteProcessorImpl implements SpriteProcessor {
 			int maxWidth, int maxSize)
 		throws IOException {
 
-		if (imageURLs.size() < 1) {
+		if (imageURLs.isEmpty()) {
 			return null;
 		}
 
@@ -382,11 +382,12 @@ public class SpriteProcessorImpl implements SpriteProcessor {
 
 		tiledImage.setData(raster);
 
-		/*javax.media.jai.JAI.create(
-			"filestore", tiledImage, "test.png", "PNG");
+		/*
+		javax.media.jai.JAI.create("filestore", tiledImage, "test.png", "PNG");
 
 		printImage(renderedImage);
-		printImage(tiledImage);*/
+		printImage(tiledImage);
+		*/
 
 		return tiledImage;
 	}

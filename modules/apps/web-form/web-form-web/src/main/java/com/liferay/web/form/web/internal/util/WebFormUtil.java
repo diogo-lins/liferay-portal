@@ -62,6 +62,12 @@ public class WebFormUtil {
 				companyId, WebFormUtil.class.getName(), tableName);
 		}
 		catch (NoSuchTableException nste) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(nste, nste);
+			}
 		}
 
 		return ExpandoTableLocalServiceUtil.addTable(
@@ -79,6 +85,13 @@ public class WebFormUtil {
 				companyId, WebFormUtil.class.getName(), tableName);
 		}
 		catch (NoSuchTableException nste) {
+
+			// LPS-52675
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(nste, nste);
+			}
+
 			expandoTable = addTable(companyId, tableName);
 
 			int i = 1;
@@ -217,6 +230,7 @@ public class WebFormUtil {
 				new String[] {"\\n", "\\n", "\\n"});
 
 			sb.append(HtmlUtil.escapeJS(value));
+
 			sb.append("';\n");
 		}
 

@@ -383,78 +383,72 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			return;
 		}
 
-		ifClause = stripRedundantParentheses(ifClause);
-
-		int level = 0;
-		int max = StringUtil.count(ifClause, CharPool.OPEN_PARENTHESIS);
 		int previousParenthesisPos = -1;
-
-		int[] levels = new int[max];
 
 		for (int i = 0; i < ifClause.length(); i++) {
 			char c = ifClause.charAt(i);
 
-			if ((c == CharPool.OPEN_PARENTHESIS) ||
-				(c == CharPool.CLOSE_PARENTHESIS)) {
+			if ((c != CharPool.OPEN_PARENTHESIS) &&
+				(c != CharPool.CLOSE_PARENTHESIS)) {
 
-				if (previousParenthesisPos != -1) {
-					String s = ifClause.substring(
-						previousParenthesisPos + 1, i);
+				continue;
+			}
 
-					if (hasMissingParentheses(s)) {
-						processMessage(
-							fileName, "Missing parentheses in if-statement",
-							lineCount);
+			if (previousParenthesisPos != -1) {
+				String s = ifClause.substring(previousParenthesisPos + 1, i);
 
-						return;
-					}
+				if (hasMissingParentheses(s)) {
+					processMessage(
+						fileName, "Missing parentheses in if-statement",
+						lineCount);
+
+					return;
 				}
+			}
 
+			if (previousParenthesisPos == -1) {
 				previousParenthesisPos = i;
 
-				if (c == CharPool.OPEN_PARENTHESIS) {
-					levels[level] = i;
+				continue;
+			}
 
-					level += 1;
-				}
-				else {
-					int posOpenParenthesis = levels[level - 1];
+			previousParenthesisPos = i;
 
-					if (level > 1) {
-						char nextChar = ifClause.charAt(i + 1);
-						char previousChar = ifClause.charAt(
-							posOpenParenthesis - 1);
+			if (c != CharPool.OPEN_PARENTHESIS) {
+				continue;
+			}
 
-						if (!Character.isLetterOrDigit(nextChar) &&
-							(nextChar != CharPool.PERIOD) &&
-							!Character.isLetterOrDigit(previousChar)) {
+			char previousChar = ifClause.charAt(i - 1);
 
-							String s = ifClause.substring(
-								posOpenParenthesis + 1, i);
+			if ((previousChar != CharPool.OPEN_PARENTHESIS) &&
+				(previousChar != CharPool.SPACE)) {
 
-							if (hasRedundantParentheses(s)) {
-								processMessage(
-									fileName,
-									"Redundant parentheses in if-statement",
-									lineCount);
+				continue;
+			}
 
-								return;
-							}
-						}
+			int j = i;
 
-						if ((previousChar == CharPool.OPEN_PARENTHESIS) &&
-							(nextChar == CharPool.CLOSE_PARENTHESIS)) {
+			while (true) {
+				j = ifClause.indexOf(StringPool.CLOSE_PARENTHESIS, j + 1);
 
-							processMessage(
-								fileName,
-								"Redundant parentheses in if-statement",
-								lineCount);
+				String s = ifClause.substring(i + 1, j);
 
-							return;
-						}
+				if (getLevel(s) == 0) {
+					char nextChar = ifClause.charAt(j + 1);
+
+					if (((previousChar == CharPool.OPEN_PARENTHESIS) &&
+						 (nextChar == CharPool.CLOSE_PARENTHESIS)) ||
+						(((nextChar == CharPool.CLOSE_PARENTHESIS) ||
+						  (nextChar == CharPool.SPACE)) &&
+						 hasRedundantParentheses(s))) {
+
+						processMessage(
+							fileName,
+							"Redundant parentheses in if-statement",
+							lineCount);
 					}
 
-					level -= 1;
+					break;
 				}
 			}
 		}
@@ -1110,7 +1104,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		}
 
 		fileName = StringUtil.replace(
-			fileName, StringPool.BACK_SLASH, StringPool.SLASH);
+			fileName, CharPool.BACK_SLASH, CharPool.SLASH);
 
 		File file = new File(fileName);
 
@@ -1313,10 +1307,18 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected String formatEmptyArray(String line) {
-		int pos = line.indexOf("[] {}");
+		Matcher matcher = emptyArrayPattern.matcher(line);
 
-		if ((pos != -1) && !ToolsUtil.isInsideQuotes(line, pos)) {
-			return StringUtil.replaceFirst(line, "[] {}", "[0]", pos - 1);
+		while (matcher.find()) {
+			if (ToolsUtil.isInsideQuotes(line, matcher.end(1))) {
+				continue;
+			}
+
+			String replacement = StringUtil.replace(
+				matcher.group(1), "[]", "[0]");
+
+			return StringUtil.replaceFirst(
+				line, matcher.group(), replacement, matcher.start());
 		}
 
 		return line;
@@ -1389,6 +1391,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		else {
 			javaSourceProcessor = new JavaSourceProcessor();
 
+			javaSourceProcessor.setProperties(_properties);
 			javaSourceProcessor.setSourceFormatterArgs(sourceFormatterArgs);
 		}
 
@@ -1800,10 +1803,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			String content = FileUtil.read(file);
 
 			fileName = StringUtil.replace(
-				fileName, StringPool.BACK_SLASH, StringPool.SLASH);
+				fileName, CharPool.BACK_SLASH, CharPool.SLASH);
 
 			fileName = StringUtil.replace(
-				fileName, StringPool.SLASH, StringPool.PERIOD);
+				fileName, CharPool.SLASH, CharPool.PERIOD);
 
 			int pos = fileName.indexOf("com.");
 
@@ -2114,7 +2117,9 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		boolean usePortalReleaseVersion = true;
 
-		if (checkModuleVersion && isModulesFile(absolutePath)) {
+		if (checkModuleVersion &&
+			(!portalSource || isModulesFile(absolutePath))) {
+
 			usePortalReleaseVersion = false;
 		}
 
@@ -2455,31 +2460,21 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected boolean hasRedundantParentheses(String s) {
-		if (!s.contains("&&") && !s.contains("||")) {
-			for (int x = 0;;) {
-				x = s.indexOf(CharPool.CLOSE_PARENTHESIS);
+		int x = -1;
 
-				if (x == -1) {
-					break;
-				}
+		while (true) {
+			x = s.indexOf(StringPool.SPACE, x + 1);
 
-				int y = s.substring(0, x).lastIndexOf(
-					CharPool.OPEN_PARENTHESIS);
+			if (x == -1) {
+				break;
+			}
 
-				if (y == -1) {
-					break;
-				}
-
-				s = s.substring(0, y) + s.substring(x + 1);
+			if (getLevel(s.substring(0, x)) == 0) {
+				return false;
 			}
 		}
 
-		if (Validator.isNotNull(s) && !s.contains(StringPool.SPACE)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return true;
 	}
 
 	protected boolean hasRedundantParentheses(
@@ -2864,28 +2859,6 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return sb.toString();
 	}
 
-	protected String stripRedundantParentheses(String s) {
-		for (int x = 0;;) {
-			x = s.indexOf(CharPool.OPEN_PARENTHESIS, x + 1);
-			int y = s.indexOf(CharPool.CLOSE_PARENTHESIS, x);
-
-			if ((x == -1) || (y == -1)) {
-				return s;
-			}
-
-			String linePart = s.substring(x + 1, y);
-
-			linePart = StringUtil.replace(
-				linePart, StringPool.COMMA, StringPool.BLANK);
-
-			if (Validator.isAlphanumericName(linePart) ||
-				Validator.isNull(linePart)) {
-
-				s = s.substring(0, x) + s.substring(y + 1);
-			}
-		}
-	}
-
 	protected String trimContent(String content, boolean allowLeadingSpaces)
 		throws IOException {
 
@@ -2918,31 +2891,18 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		line = StringUtil.trimTrailing(line);
 
-		if (allowLeadingSpaces || !line.startsWith(StringPool.SPACE) ||
-			line.startsWith(" *")) {
-
+		if (allowLeadingSpaces || line.startsWith(" *")) {
 			return line;
 		}
 
-		if (!line.startsWith(StringPool.FOUR_SPACES)) {
-			while (line.startsWith(StringPool.SPACE)) {
-				line = StringUtil.replaceFirst(
-					line, StringPool.SPACE, StringPool.BLANK);
-			}
+		while (line.matches("^\t*    .*")) {
+			line = StringUtil.replaceFirst(
+				line, StringPool.FOUR_SPACES, StringPool.TAB);
 		}
-		else {
-			int pos = 0;
 
-			String temp = line;
-
-			while (temp.startsWith(StringPool.FOUR_SPACES)) {
-				line = StringUtil.replaceFirst(
-					line, StringPool.FOUR_SPACES, StringPool.TAB);
-
-				pos++;
-
-				temp = line.substring(pos);
-			}
+		while (line.startsWith(StringPool.SPACE)) {
+			line = StringUtil.replaceFirst(
+				line, StringPool.SPACE, StringPool.BLANK);
 		}
 
 		return line;
@@ -2957,6 +2917,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		"\\scontent=(.*?)(,\\\\|\n|$)");
 	protected static Pattern bndReleaseVersionPattern = Pattern.compile(
 		"Bundle-Version: (.*)\n");
+	protected static Pattern emptyArrayPattern = Pattern.compile(
+		"((\\[\\])+) \\{\\}");
 	protected static Pattern emptyCollectionPattern = Pattern.compile(
 		"Collections\\.EMPTY_(LIST|MAP|SET)");
 	protected static Pattern getterUtilGetPattern = Pattern.compile(
