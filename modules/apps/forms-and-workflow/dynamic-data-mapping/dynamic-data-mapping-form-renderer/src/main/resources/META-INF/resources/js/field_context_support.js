@@ -10,6 +10,13 @@ AUI.add(
 
 		var FieldContextSupport = function(config) {};
 
+		FieldContextSupport.ATTRS = {
+			context: {
+				setter: '_setContext',
+				value: {}
+			}
+		};
+
 		FieldContextSupport.prototype = {
 			initializer: function() {
 				var instance = this;
@@ -24,7 +31,7 @@ AUI.add(
 
 				instance._eventHandlers = [];
 
-				instance._repaintableAttributes = {};
+				instance._stateRepaintableAttributes = {};
 
 				instance.bindFieldClassAttributesStatus(fieldClass);
 			},
@@ -34,13 +41,37 @@ AUI.add(
 
 				var EXTENDS = fieldClass;
 
+				var context = instance.get('context');
+
 				var setAttributeChangeEvent = function(attributeName) {
-					if (EXTENDS.ATTRS[attributeName].state) {
-						instance._repaintableAttributes[attributeName] = true;
+					var stateAttribute = EXTENDS.ATTRS[attributeName].state;
+
+					if (stateAttribute) {
+						if (context[attributeName]) {
+							instance.set(attributeName, context[attributeName]);
+						}
+						else {
+							context[attributeName] = instance.get(attributeName);
+						}
 
 						instance.after(attributeName + 'Change', A.bind(instance._afterAttributeChange, instance, attributeName));
 					}
+
+					instance._setStateRepaintableAttributeValue(attributeName, stateAttribute);
 				};
+
+				for (var attr in context) {
+					if (!instance.getAttrs().hasOwnProperty(attr)) {
+
+						var config = {
+							state: true,
+							value: context[attr]
+						};
+
+						instance.addAttr(attr, config);
+						instance.after(attr + 'Change', A.bind(instance._afterAttributeChange, instance, attr));
+					}
+				}
 
 				while (EXTENDS) {
 					AObject.keys(EXTENDS.ATTRS).forEach(setAttributeChangeEvent);
@@ -56,7 +87,7 @@ AUI.add(
 
 				var context = instance.get('context');
 
-				return context && instance._repaintableAttributes[attributeName] && context.hasOwnProperty(attributeName);
+				return context && context.hasOwnProperty(attributeName) && instance._stateRepaintableAttributes[attributeName];
 			},
 
 			_afterAttributeChange: function(name) {
@@ -94,6 +125,26 @@ AUI.add(
 
 				if (repaint && instance.get('rendered')) {
 					instance.render();
+				}
+			},
+
+			_isStateRepaintableAttributeDefined: function(attributeName) {
+				var instance = this;
+
+				return instance._stateRepaintableAttributes.hasOwnProperty(attributeName);
+			},
+
+			_setContext: function(val) {
+				var instance = this;
+
+				return A.merge(instance.get('context'), val);
+			},
+
+			_setStateRepaintableAttributeValue: function(attributeName, value) {
+				var instance = this;
+
+				if (!instance._isStateRepaintableAttributeDefined(attributeName)) {
+					instance._stateRepaintableAttributes[attributeName] = value;
 				}
 			}
 		};

@@ -21,10 +21,6 @@ AUI.add(
 						valueFn: '_valueContainer'
 					},
 
-					context: {
-						value: {}
-					},
-
 					dataType: {
 						getter: '_getDataType',
 						value: 'string'
@@ -92,6 +88,7 @@ AUI.add(
 					},
 
 					value: {
+						state: false,
 						value: ''
 					},
 

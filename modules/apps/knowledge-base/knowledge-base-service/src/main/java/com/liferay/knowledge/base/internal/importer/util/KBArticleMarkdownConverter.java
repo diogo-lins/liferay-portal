@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ModelHintsUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -187,7 +188,8 @@ public class KBArticleMarkdownConverter {
 					if (_log.isWarnEnabled()) {
 						_log.warn(
 							"Unable to obtain image URL from file entry " +
-								imageFileEntry.getFileEntryId());
+								imageFileEntry.getFileEntryId(),
+							pe);
 					}
 				}
 
@@ -235,7 +237,7 @@ public class KBArticleMarkdownConverter {
 			sb.append(StringPool.SLASH);
 		}
 
-		sb.append(fileEntryName);
+		sb.append(FileUtil.replaceSeparator(fileEntryName));
 
 		return sb.toString();
 	}
