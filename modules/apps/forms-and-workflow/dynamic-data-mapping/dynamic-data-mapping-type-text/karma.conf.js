@@ -19,8 +19,7 @@ liferayAlloyConfig.addModule(
 module.exports = function(config) {
 	liferayAlloyConfig.setConfig(config);
 	
-	config.files.push(
-		'src/mocks/*.js',
- 		'src/test/*.js'		
+	config.files.push(		
+ 		'src/testFrontend/*.js'		
  	);
 };
