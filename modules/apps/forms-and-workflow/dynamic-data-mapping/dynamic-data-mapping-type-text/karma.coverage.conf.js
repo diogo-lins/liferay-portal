@@ -1,25 +1,28 @@
-var liferayAlloyConfig = require('liferay-forms-alloy-config');
+var defaultConfig = require('./karma.conf.js');
+var karmaCoverage = require('karma-coverage');
+var path = require('path');
 
-liferayAlloyConfig.addModule(
-	{
-		modulePath: 'dynamic-data-mapping-form-renderer',
-		pattern: '/js/*.js',
-		excludePattern: '/*.soy.js'
-	}
-);
+module.exports = function(config) {
+	defaultConfig(config);
 
-liferayAlloyConfig.addModule(
-	{
-		modulePath: 'dynamic-data-mapping-type-text',
-		pattern: '/!(*.soy).js',
-		excludePattern: '/*.soy.js'
-	}
-);
+	config.coverageReporter = {
+		dir: path.resolve('build/coverage'),
+		reporters: [
+			{
+				subdir: 'lcov',
+				type: 'lcov'
+			},
+			{
+				type: 'text-summary'
+			}
+		]
+	};
 
-module.exports = function(karmaConfig) {
-	liferayAlloyConfig.setConfigCoverage(karmaConfig);
+	config.plugins.push(karmaCoverage);
 
-	karmaConfig.files.push(		
- 		'src/testFrontend/*.js'		
- 	);
+	var resourcesPath = 'src/main/resources/META-INF/resources';
+
+	config.preprocessors[resourcesPath + '/**/!(*soy)*.js'] = ['replacer', 'coverage'];
+
+	config.reporters.push('coverage');
 };
