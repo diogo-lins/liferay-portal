@@ -1,35 +1,22 @@
 'use strict';
 
-var A = AUI();
-
-var assert = chai.assert;
-
-var createTextField = function(config) {
-	return new Liferay.DDM.Field.Text(
-		A.merge(
-			{
-				context: {
-					errorMessage: 'error',
-					name: 'textField',
-					required: true,
-					value: 'marcellus'
-				}
-			},
-			config || {}
-		)
-	).render(document.body);
-};
-
-var waitValueChange = function(callback) {
-	setTimeout(callback, A.ValueChange.POLL_INTERVAL);
-};
-
 describe(
-	'DDM Field Text',
+	'TextField',
 	function() {
+		var textField;
+
+		afterEach(
+			function(done) {
+				textField.destroy();
+
+				done();
+			}
+		);
+
 		before(
 			function(done) {
 				AUI().use(
+					'liferay-ddm-form-field-text-template',
 					'liferay-ddm-form-field-text',
 					function(A) {
 						Liferay.DDM.Renderer.FieldTypes.register(
@@ -46,124 +33,54 @@ describe(
 			}
 		);
 
-		it(
-			'should show loading feedback',
+		beforeEach(
 			function(done) {
-				var textField = createTextField();
-
-				var container = textField.get('container');
-
-				assert.notOk(
-					container.one('.icon-spinner'),
-					'Loading icon should not be visible'
-				);
-
-				textField.showLoadingFeedback();
-
-				assert.ok(
-					container.one('.icon-spinner'),
-					'Loading icon should be visible'
-				);
-
-				textField.destroy();
-
-				done();
-			}
-		);
-
-		it(
-			'Should show error message',
-			function(done) {
-				var textField = createTextField();
-
-				textField.set('errorMessage', 'Error');
-
-				textField.showErrorMessage();
-
-				assert.isOk(
-					textField.get('errorMessage'),
-					'Error message should be setted'
-				);
-
-				var container = textField.get('container');
-
-				assert.isOk(
-					container.one('.help-block'),
-					'Error message should be visible'
-				);
-
-				done();
-			}
-		);
-
-		it(
-			'Should create autoComplete with options',
-			function(done) {
-				var textField = createTextField(
+				textField = new Liferay.DDM.Field.Text(
 					{
-						options: [
-							{label: 'Foo', value: 'Foo'},
-							{label: 'Bar', value: 'Bar'}
-						]
+						context: {
+							errorMessage: 'error',
+							name: 'textField',
+							required: true,
+							value: 'marcellus'
+						}
 					}
-				);
-
-				var container = textField.get('container');
-
-				var inputGroup = container.one('.input-group-container');
-
-				var textAutoComplete = inputGroup.one('.yui3-aclist');
-
-				assert.isOk(
-					textAutoComplete,
-					'Auto Complete is created'
-				);
-
-				assert.isOk(
-					textField.getAutoComplete(),
-					'Auto Complete is created'
-				);
+				).render(document.body)
 
 				done();
 			}
 		);
 
-		it(
-			'Should create autoComplete without options',
-			function(done) {
-				var textField = createTextField();
+		describe(
+			'TextField.showErrorMessage',
+			function() {
+				it(
+					'should not show an error message when there isn\'t one',
+					function(done) {
+						textField.set('errorMessage', '');
 
-				var autoComplete = textField.getAutoComplete();
-
-				assert.isOk(
-					autoComplete,
-					'Auto Complete is created'
-				);
-
-				done();
-			}
-		);
-
-		it(
-			'Should change options after autoComplete have been created',
-			function(done) {
-				var textField = createTextField(
-					{
-						options: [
-							{label: 'Foo', value: 'Foo'},
-							{label: 'Bar', value: 'Bar'}
-						]
-					}
-				);
-
-				textField.set('options', []);
-
-				waitValueChange(
-					function()	{
+						var container = textField.get('container');
 
 						assert.notOk(
-							textField.get('options').length,
-							'Options list is empty'
+							container.one('.help-block'),
+							'Error message should not be visible'
+						);
+
+						done();
+					}
+				);
+
+				it(
+					'should show an error message when there is one',
+					function(done) {
+						textField.set('errorMessage', 'Error Message');
+
+						textField.showErrorMessage();
+
+						var container = textField.get('container');
+
+						assert.isOk(
+							container.one('.help-block'),
+							'Error message should be visible'
 						);
 
 						done();
@@ -172,21 +89,38 @@ describe(
 			}
 		);
 
-		it(
-			'Should focus when input is single line',
-			function(done) {
+		describe(
+			'TextField.showLoadingFeedback',
+			function() {
+				it(
+					'should not show a loading feedback after it\'s created',
+					function(done) {
+						var container = textField.get('container');
 
-				var textField = createTextField();
+						assert.notOk(
+							container.one('.icon-spinner'),
+							'Loading icon should not be visible'
+						);
 
-				textField.focus();
-				textField.setValue('Lorem');
-
-				assert(
-					textField.getValue() === 'Lorem',
-					'Text field value should be the same'
+						done();
+					}
 				);
 
-				done();
+				it(
+					'should show loading feedback',
+					function(done) {
+						var container = textField.get('container');
+
+						textField.showLoadingFeedback();
+
+						assert.ok(
+							container.one('.icon-spinner'),
+							'Loading icon should be visible'
+						);
+
+						done();
+					}
+				);
 			}
 		);
 	}
