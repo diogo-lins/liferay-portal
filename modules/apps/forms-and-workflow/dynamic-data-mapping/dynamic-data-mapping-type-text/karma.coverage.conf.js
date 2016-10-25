@@ -20,6 +20,6 @@ module.exports = function(karmaConfig) {
 	liferayAlloyConfig.setConfigCoverage(karmaConfig);
 
 	karmaConfig.files.push(		
- 		'src/test/*.js'		
+ 		'src/testFrontend/*.js'		
  	);
 };

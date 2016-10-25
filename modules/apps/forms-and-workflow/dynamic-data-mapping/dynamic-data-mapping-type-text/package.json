@@ -13,7 +13,7 @@
     "karma-sinon": "^1.0.4",
     "karma-threshold-reporter": "^0.1.15",
     "liferay-forms-gulp-tasks": "^0.0.8",
-    "liferay-forms-alloy-config": "^0.0.4",
+    "liferay-forms-alloy-config": "^0.0.6",
     "mocha": "^2.2.5",
     "open": "0.0.5",
     "ps-tree": "^1.0.0",
