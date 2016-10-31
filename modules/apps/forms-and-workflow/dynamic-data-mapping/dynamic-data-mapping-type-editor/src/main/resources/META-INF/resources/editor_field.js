@@ -83,6 +83,8 @@ AUI.add(
 
 							window[name] = {};
 
+							window[name + 'onChange'] = A.bind(A.debounce(instance._onChangeEditor, 100), instance);
+
 							instance._alloyEditor = new A.LiferayAlloyEditor(
 								{
 									contents: value,
@@ -101,7 +103,7 @@ AUI.add(
 										}
 									},
 									namespace: name,
-									onChangeMethod: A.bind(A.debounce(instance._onChangeEditor, 100), instance),
+									onChangeMethod: name + 'onChange',
 									plugins: [],
 									textMode: false
 								}
