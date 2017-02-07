@@ -59,6 +59,26 @@ AUI.add(
 						return instance.get('value');
 					},
 
+					render: function() {
+						var instance = this;
+
+						var hasFocus = instance.hasFocus();
+
+						var focusTarget = instance._getFocusTarget();
+
+						GridField.superclass.render.apply(instance, arguments);
+
+						if (hasFocus && focusTarget) {
+							var focusInput = instance._getInput(focusTarget.row, focusTarget.index);
+
+							if (focusInput) {
+								focusInput.focus();
+							}
+						}
+
+						return instance;
+					},
+
 					setValue: function(value) {
 						var instance = this;
 
@@ -83,14 +103,12 @@ AUI.add(
 						return instance._focusTarget;
 					},
 
-					_getGridRowsNode: function() {
+					_getInput(row, index) {
 						var instance = this;
 
 						var container = instance.get('container');
 
-						var gridRowsNode = container.all('tbody tr');
-
-						return gridRowsNode;
+						return container.one('input[name=' + row + '][data-row-index=' + index + ']');
 					},
 
 					_getLocalizedLabel: function(option) {
