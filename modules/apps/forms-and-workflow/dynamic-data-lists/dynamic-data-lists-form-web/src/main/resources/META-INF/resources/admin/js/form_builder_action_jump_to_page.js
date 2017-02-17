@@ -22,9 +22,12 @@ AUI.add(
 
 					strings: {
 						value: {
-							from: Liferay.Language.get('from'),
 							to: Liferay.Language.get('to')
 						}
+					},
+
+					type: {
+						value: 'jump-to-page'
 					}
 				},
 
@@ -52,10 +55,15 @@ AUI.add(
 
 						var strings = instance.get('strings');
 
-						instance._createLabel(strings.from);
 						instance._createSourceField().render(boundingBox);
 						instance._createLabel(strings.to);
 						instance._createTargetField().render(boundingBox);
+					},
+
+					updateSource: function(pages) {
+						var instance = this;
+
+						instance._setSourceField(String(Math.max(pages)));
 					},
 
 					_createLabel: function(text) {
@@ -100,7 +108,7 @@ AUI.add(
 								options: instance.get('options'),
 								showLabel: false,
 								value: value,
-								visible: true
+								visible: false
 							}
 						);
 
@@ -141,6 +149,12 @@ AUI.add(
 						instance._targetField.get('container').addClass('lfr-ddm-form-field-container-inline');
 
 						return instance._targetField;
+					},
+
+					_setSourceField: function(pageIndex) {
+						var instance = this;
+
+						instance._sourceField.setValue(String(pageIndex));
 					}
 				}
 			}
