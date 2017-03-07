@@ -246,10 +246,31 @@ AUI.add(
 
 							var action = instance._actions[currentIndex + '-action'];
 
+							if (action.get('type') === 'jump-to-page') {
+								action.updateSource(instance._getConditionSelectedFieldsPage());
+							}
 							actions.push(action.getValue());
 						}
 
 						return actions;
+					},
+
+					_getConditionSelectedFieldsPage: function() {
+						var instance = this;
+
+						var fields = [];
+
+						for (var conditionKey in instance._conditions) {
+							if (!!conditionKey.match('-condition-second-operand-select') || !!conditionKey.match('-condition-first-operand')) {
+								var fieldName = instance._conditions[conditionKey].getValue();
+
+								if (fieldName) {
+									fields.push(instance._getFieldPageIndex(fieldName));
+								}
+							}
+						}
+
+						return fields;
 					},
 
 					_getFieldDataType: function(fieldName) {
@@ -262,6 +283,18 @@ AUI.add(
 						);
 
 						return field.dataType;
+					},
+
+					_getFieldPageIndex: function(fieldName) {
+						var instance = this;
+
+						var field = instance.get('fields').find(
+							function(field) {
+								return field.value === fieldName;
+							}
+						);
+
+						return field.pageIndex;
 					},
 
 					_getOptionsLabel: function(field, optionValue) {

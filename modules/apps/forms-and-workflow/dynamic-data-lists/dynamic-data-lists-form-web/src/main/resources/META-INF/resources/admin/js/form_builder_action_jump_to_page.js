@@ -1,10 +1,6 @@
 AUI.add(
 	'liferay-ddl-form-builder-action-jump-to-page',
 	function(A) {
-		var Lang = A.Lang;
-
-		var TPL_ACTION_FIELD_LABEL = '<label class="lfr-ddm-form-field-container-inline">{message}</label>';
-
 		var FormBuilderActionJumpToPage = A.Component.create(
 			{
 				ATTRS: {
@@ -20,11 +16,8 @@ AUI.add(
 						value: []
 					},
 
-					strings: {
-						value: {
-							from: Liferay.Language.get('from'),
-							to: Liferay.Language.get('to')
-						}
+					type: {
+						value: 'jump-to-page'
 					}
 				},
 
@@ -48,31 +41,18 @@ AUI.add(
 					render: function() {
 						var instance = this;
 
-						var strings = instance.get('strings');
-
 						var index = instance.get('index');
 
 						var fieldsListContainer = instance.get('boundingBox').one('.target-' + index);
 
-						fieldsListContainer.append(instance._createLabel(strings.from));
 						instance._createSourceField().render(fieldsListContainer);
-						fieldsListContainer.append(instance._createLabel(strings.do));
 						instance._createTargetField().render(fieldsListContainer);
 					},
 
-					_createLabel: function(text) {
+					updateSource: function(pages) {
 						var instance = this;
 
-						var label =	A.Node.create(
-							Lang.sub(
-								TPL_ACTION_FIELD_LABEL,
-								{
-									message: text
-								}
-							)
-						);
-
-						return label;
+						instance._setSourceField(String(Math.max(pages)));
 					},
 
 					_createSourceField: function() {
@@ -100,7 +80,7 @@ AUI.add(
 								options: instance.get('options'),
 								showLabel: false,
 								value: value,
-								visible: true
+								visible: false
 							}
 						);
 
@@ -141,6 +121,12 @@ AUI.add(
 						instance._targetField.get('container').addClass('lfr-ddm-form-field-container-inline');
 
 						return instance._targetField;
+					},
+
+					_setSourceField: function(pageIndex) {
+						var instance = this;
+
+						instance._sourceField.setValue(String(pageIndex));
 					}
 				}
 			}
