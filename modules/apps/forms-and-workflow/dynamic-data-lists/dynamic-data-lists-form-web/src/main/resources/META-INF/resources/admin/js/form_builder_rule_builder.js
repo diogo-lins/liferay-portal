@@ -6,7 +6,7 @@ AUI.add(
 		var MAP_ACTION_DESCRIPTIONS = {
 			'auto-fill': 'auto-fill',
 			enable: 'enable-field',
-			'jump-to-page': 'jump-from-page-to-page',
+			'jump-to-page': 'jump-to-page',
 			require: 'require-field',
 			show: 'show-field'
 		};
@@ -47,7 +47,7 @@ AUI.add(
 							emptyListText: Liferay.Language.get('there-are-no-rules-yet-click-on-plus-icon-below-to-add-the-first'),
 							'enable-field': Liferay.Language.get('enable-x'),
 							'equals-to': Liferay.Language.get('is-equal-to'),
-							'jump-from-page-to-page': Liferay.Language.get('jump-from-x-to-x'),
+							'jump-to-page': Liferay.Language.get('jump-to-page-x'),
 							'not-contains': Liferay.Language.get('does-not-contain'),
 							'not-equals-to': Liferay.Language.get('is-not-equal-to'),
 							'require-field': Liferay.Language.get('require-x'),
@@ -133,6 +133,7 @@ AUI.add(
 										dataType: field.get('dataType'),
 										label: field.get('label') || field.get('fieldName'),
 										options: field.get('options'),
+										pageIndex: instance.getPageIndex(field),
 										type: field.get('type'),
 										value: field.get('fieldName')
 									}
@@ -141,6 +142,36 @@ AUI.add(
 						);
 
 						return fields;
+					},
+
+					getPageIndex: function(field) {
+						var instance = this;
+
+						var formBuilder = instance.get('formBuilder');
+
+						var layouts = formBuilder.get('layouts');
+
+						for (var h = 0; h < layouts.length; h++) {
+							var rows = layouts[h].get('rows');
+
+							for (var i = 0; i < rows.length; i++) {
+								var cols = rows[i].get('cols');
+
+								for (var j = 0; j < cols.length; j++) {
+									var fieldList = cols[j].get('value');
+
+									if (fieldList) {
+										var fields = fieldList.get('fields');
+
+										for (var k = 0; k < fields.length; k++) {
+											if (fields[k].get('label') === field.get('label')) {
+												return h;
+											}
+										}
+									}
+								}
+							}
+						}
 					},
 
 					getPages: function() {
@@ -242,11 +273,6 @@ AUI.add(
 
 							if (type === 'jump-to-page') {
 								data = [
-									badgeTemplate(
-										{
-											content: pages[action.source].label
-										}
-									),
 									badgeTemplate(
 										{
 											content: pages[action.target].label
