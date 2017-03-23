@@ -136,6 +136,8 @@ AUI.add(
 
 						instance._validateRule();
 
+						instance._updateLogicOperatorVisibility();
+
 						return FormBuilderRenderRule.superclass.render.apply(instance, []);
 					},
 
