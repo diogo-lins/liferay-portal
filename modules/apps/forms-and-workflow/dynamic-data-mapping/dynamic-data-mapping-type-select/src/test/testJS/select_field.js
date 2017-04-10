@@ -443,5 +443,17 @@ describe(
 				);
 			}
 		);
+
+		describe(
+			'.Fail',
+			function() {
+				it(
+					'should fail and the CI should show this fail',
+					function() {
+						assert.fail(true, false, 'FAIL');
+					}
+				);
+			}
+		);
 	}
 );
