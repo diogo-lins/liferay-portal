@@ -13,9 +13,15 @@ AUI.add(
 					advancedOperators: {
 						value: ''
 					},
+
+					functions: {
+						value: []
+					},
+
 					options: {
 						value: []
 					},
+
 					strings: {
 						value: {
 							addField: Liferay.Language.get('add-field')
