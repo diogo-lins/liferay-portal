@@ -102,6 +102,7 @@ AUI.add(
 						boundingBox.delegate('click', A.bind(instance._handleSaveClick, instance), '.form-builder-rule-settings-save');
 
 						instance.after(instance._toggleDeleteActionButton, instance, '_addAction');
+						instance.after(instance._validateRule, instance, '_addCondition');
 
 						instance.after('fieldsChange', A.bind(instance._afterFieldsChange, instance));
 						instance.after('pagesChange', A.bind(instance._afterPagesChange, instance));
@@ -136,7 +137,7 @@ AUI.add(
 
 						instance._validateRule();
 
-						instance._updateLogicOperatorVisibility();
+						instance._updateLogicOperatorEnableState();
 
 						return FormBuilderRenderRule.superclass.render.apply(instance, []);
 					},
@@ -412,6 +413,8 @@ AUI.add(
 						);
 
 						instance._addAction(index);
+
+						instance._validateRule();
 					},
 
 					_handleCancelClick: function() {
@@ -450,6 +453,8 @@ AUI.add(
 						}
 
 						instance._toggleDeleteActionButton();
+
+						instance._validateRule();
 					},
 
 					_handleSaveClick: function() {
@@ -459,7 +464,7 @@ AUI.add(
 							'saveRule',
 							{
 								actions: instance._getActions(),
-								condition: instance._getConditions(),
+								conditions: instance._getConditions(),
 								'logical-operator': instance.get('logicOperator')
 							}
 						);
@@ -508,7 +513,7 @@ AUI.add(
 
 						var rule = {
 							actions: instance._getActions(),
-							condition: instance._getConditions(),
+							conditions: instance._getConditions(),
 							'logical-operator': instance.get('logicOperator')
 						};
 
