@@ -2,12 +2,12 @@ AUI.add(
 	'liferay-ddl-form-builder-rule-validator',
 	function(A) {
 		var CONDITIONS_OPERATOR = {
+			'contains': 'binary',
 			'equals-to': 'binary',
 			'is-empty': 'unary',
-			'not-is-empty': 'unary',
+			'not-contains': 'binary',
 			'not-equals-to': 'binary',
-			'contains': 'binary',
-			'not-contains': 'binary'
+			'not-is-empty': 'unary'
 		};
 
 		var FormBuilderRuleValidator = A.Component.create(
@@ -27,7 +27,7 @@ AUI.add(
 
 						var validActions = instance._isValidActions(rule.actions);
 
-						return  validConditions && validActions;
+						return validConditions && validActions;
 					},
 
 					_isPropertyAction: function(type) {
@@ -44,9 +44,8 @@ AUI.add(
 						if (instance._isPropertyAction(action.action)) {
 							return action.target;
 						}
-						else {
-							return true;
-						}
+
+						return true;
 					},
 
 					_isValidActions: function(actions) {
@@ -58,6 +57,22 @@ AUI.add(
 
 						for (var i = 0; i < actions.length; i++) {
 							if (!instance._isValidAction(actions[i])) {
+								return false;
+							}
+						}
+
+						return true;
+					},
+
+					_isValidConditions: function(conditions) {
+						var instance = this;
+
+						if (conditions.length === 0) {
+							return false;
+						}
+
+						for (var i = 0; i < conditions.length; i++) {
+							if (!instance._isValidConditon(conditions[i])) {
 								return false;
 							}
 						}
@@ -81,34 +96,17 @@ AUI.add(
 						if (operatorType === 'unary' && condition.operands.length > 1) {
 							return false;
 						}
-						
-						if (operatorType === 'binary' && condition.operands.length == 2){
+
+						if (operatorType === 'binary' && condition.operands.length == 2) {
 							if (condition.operands[1].type && condition.operands[1].value) {
 								return true;
-							} 
-							else {
-								return false;
 							}
-						}
 
-						return true;
-					},
-
-					_isValidConditions: function(conditions) {
-						var instance = this;
-
-						if (conditions.length === 0) {
 							return false;
 						}
 
-						for (var i = 0; i < conditions.length; i++) {
-							if (!instance._isValidConditon(conditions[i])) {
-								return false;
-							}
-						}
-
 						return true;
-					 }
+					}
 				}
 			}
 		);

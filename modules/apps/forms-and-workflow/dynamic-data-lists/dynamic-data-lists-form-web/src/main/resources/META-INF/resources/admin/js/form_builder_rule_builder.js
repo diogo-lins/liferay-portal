@@ -446,7 +446,7 @@ AUI.add(
 
 						var rule = {
 							actions: event.actions,
-							conditions: event.condition,
+							conditions: event.conditions,
 							'logical-operator': event['logical-operator']
 						};
 
